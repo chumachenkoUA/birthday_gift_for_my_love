@@ -1,0 +1,93 @@
+@use '../styles/variables' as *;
+
+.tabsWrapper {
+  width: 100%;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.tabs {
+  position: relative;
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  width: min(880px, 100%);
+  background: rgba(255, 255, 255, 0.86);
+  border-radius: 28px;
+  box-shadow: 0 18px 42px rgba(236, 145, 181, 0.22);
+  backdrop-filter: blur(14px);
+}
+
+.indicator {
+  position: absolute;
+  inset: 4px auto 4px 4px;
+  width: 0;
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(255, 207, 224, 0.8) 0%, rgba(242, 119, 162, 0.65) 100%);
+  box-shadow: 0 18px 36px rgba(242, 119, 162, 0.32);
+  pointer-events: none;
+  opacity: 0;
+}
+
+.tab {
+  flex: 1;
+  border: none;
+  background: transparent;
+  border-radius: 20px;
+  padding: 16px 20px;
+  text-align: left;
+  color: $color-secondary;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: color 0.25s ease, transform 0.25s ease;
+  position: relative;
+  z-index: 1;
+
+  &:hover {
+    color: $color-primary;
+    transform: translateY(-2px);
+  }
+}
+
+.tabActive {
+  color: $color-primary;
+}
+
+.label {
+  font-weight: 600;
+  font-size: 1.08rem;
+}
+
+.note {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+@media (max-width: 720px) {
+  .tabs {
+    gap: 4px;
+    padding: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .tab {
+    min-width: 180px;
+    padding: 14px 16px;
+  }
+
+  .label {
+    font-size: 1rem;
+  }
+
+  .note {
+    font-size: 0.85rem;
+  }
+}
