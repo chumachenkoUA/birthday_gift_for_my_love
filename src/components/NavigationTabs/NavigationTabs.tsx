@@ -7,9 +7,10 @@ export type NavigationTabsProps = {
   items: MenuItem[]
   active: MenuTarget
   onSelect: (target: MenuTarget) => void
+  getPanelId?: (target: MenuTarget) => string
 }
 
-const NavigationTabs = ({ items, active, onSelect }: NavigationTabsProps) => {
+const NavigationTabs = ({ items, active, onSelect, getPanelId }: NavigationTabsProps) => {
   const indicatorRef = useRef<HTMLSpanElement | null>(null)
   const tabsRef = useRef<Array<HTMLButtonElement | null>>([])
   const entryAnimationsRef = useRef<Array<ReturnType<typeof animate>>>([])
@@ -94,10 +95,12 @@ const NavigationTabs = ({ items, active, onSelect }: NavigationTabsProps) => {
 
   return (
     <div className={styles.tabsWrapper}>
-      <div className={styles.tabs}>
+      <div className={styles.tabs} role="tablist" aria-orientation="horizontal">
         <span ref={indicatorRef} className={styles.indicator} />
         {items.map((item, index) => {
           const isActive = item.id === active
+          const tabId = `tab-${item.id}`
+          const controlsId = getPanelId?.(item.id)
           return (
             <button
               type="button"
@@ -107,6 +110,11 @@ const NavigationTabs = ({ items, active, onSelect }: NavigationTabsProps) => {
               }}
               className={`${styles.tab} ${isActive ? styles.tabActive : ''}`}
               onClick={() => onSelect(item.id)}
+              role="tab"
+              id={tabId}
+              aria-selected={isActive}
+              aria-controls={controlsId}
+              aria-current={isActive ? 'page' : undefined}
             >
               <span className={styles.label}>{item.label}</span>
               <span className={styles.note}>{item.note}</span>

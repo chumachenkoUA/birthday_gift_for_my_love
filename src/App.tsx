@@ -1,18 +1,24 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { KeyboardEvent } from 'react'
 import { animate } from 'animejs'
 import './App.scss'
 import { galleryPhotos, letterContent, menuItems, SECRET_DATE, songs, surpriseCopy } from './data/content'
-import type { MenuTarget, View } from './types'
+import type { MenuItem, MenuTarget, View } from './types'
 import NavigationTabs from './components/NavigationTabs'
 import LoginScreen from './views/LoginScreen'
-import LetterPage from './views/LetterPage'
-import MusicPage from './views/MusicPage'
-import GalleryPage from './views/GalleryPage'
-import SurprisePage from './views/SurprisePage'
+
+const LetterPage = lazy(() => import('./views/LetterPage'))
+const MusicPage = lazy(() => import('./views/MusicPage'))
+const GalleryPage = lazy(() => import('./views/GalleryPage'))
+const SurprisePage = lazy(() => import('./views/SurprisePage'))
 
 const LETTER_AUDIO = '/audio/piano.mp3'
 const SMILE_IMAGE = '/photos/smile.jpg'
+const SECRET_ITEM: MenuItem = {
+  id: 'surprise',
+  label: '💖 Секретний кабінет',
+  note: 'Відкривається після двох розділів',
+}
 
 function App() {
   const [view, setView] = useState<View>('login')
@@ -21,7 +27,16 @@ function App() {
   const [isHeartLit, setIsHeartLit] = useState(false)
   const [showGreeting, setShowGreeting] = useState(false)
   const [accentColor, setAccentColor] = useState<string | null>(null)
+  const [isLocked, setIsLocked] = useState(false)
+  const [focusSignal, setFocusSignal] = useState(0)
+  const [visited, setVisited] = useState<Record<MenuTarget, boolean>>({
+    letter: false,
+    music: false,
+    gallery: false,
+    surprise: false,
+  })
   const timersRef = useRef<Array<ReturnType<typeof setTimeout>>>([])
+  const lockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const contentRef = useRef<HTMLDivElement | null>(null)
 
   const digitsInSecret = useMemo(() => SECRET_DATE.replace(/\D/g, '').length, [])
@@ -29,14 +44,32 @@ function App() {
   useEffect(() => {
     return () => {
       timersRef.current.forEach(clearTimeout)
+      if (lockTimerRef.current) {
+        clearTimeout(lockTimerRef.current)
+      }
     }
   }, [])
 
   useEffect(() => {
     if (view === 'login') {
       setAccentColor(null)
+    } else {
+      setVisited((prev) => (prev[view] ? prev : { ...prev, [view]: true }))
     }
   }, [view])
+
+  const unlockedCoreCount = useMemo(() => {
+    const keys: Array<Exclude<MenuTarget, 'surprise'>> = ['letter', 'music', 'gallery']
+    return keys.filter((key) => visited[key]).length
+  }, [visited])
+
+  const canShowSecret = unlockedCoreCount >= 2
+
+  useEffect(() => {
+    if (view === 'surprise' && !canShowSecret) {
+      setView(menuItems[0].id)
+    }
+  }, [canShowSecret, view])
 
   const formatDateInput = useCallback((value: string) => {
     const digitsOnly = value.replace(/\D/g, '').slice(0, 8)
@@ -69,6 +102,9 @@ function App() {
   }
 
   const handleAccess = useCallback(() => {
+    if (isLocked) {
+      return
+    }
     const preparedInput = dateInput.replace(/\D/g, '')
     const target = SECRET_DATE.replace(/\D/g, '')
 
@@ -95,8 +131,16 @@ function App() {
       setErrorMessage('Ой, здається, дата не збігається. Спробуй ще раз ❤️')
       setIsHeartLit(false)
       setShowGreeting(false)
+      setFocusSignal((prev) => prev + 1)
+      setIsLocked(true)
+      if (lockTimerRef.current) {
+        clearTimeout(lockTimerRef.current)
+      }
+      lockTimerRef.current = setTimeout(() => {
+        setIsLocked(false)
+      }, 1800)
     }
-  }, [dateInput])
+  }, [dateInput, isLocked])
 
   const handleSubmitKey = useCallback(
     (event: KeyboardEvent<HTMLInputElement>) => {
@@ -141,6 +185,8 @@ function App() {
     }
   }, [view])
 
+  const tabs = useMemo(() => (canShowSecret ? [...menuItems, SECRET_ITEM] : menuItems), [canShowSecret])
+
   const renderContent = () => {
     switch (view) {
       case 'letter':
@@ -175,12 +221,25 @@ function App() {
           errorMessage={errorMessage}
           showGreeting={showGreeting}
           canSubmit={canSubmit}
+          isLocked={isLocked}
+          focusSignal={focusSignal}
         />
       ) : (
         <div className="mainLayout">
-          <NavigationTabs active={view} items={menuItems} onSelect={handleSelectTab} />
-          <div ref={contentRef} className="tabContent">
-            {renderContent()}
+          <NavigationTabs
+            active={view}
+            items={tabs}
+            onSelect={handleSelectTab}
+            getPanelId={(target) => `tab-panel-${target}`}
+          />
+          <div
+            ref={contentRef}
+            className="tabContent"
+            role="tabpanel"
+            id={`tab-panel-${view}`}
+            aria-labelledby={`tab-${view}`}
+          >
+            <Suspense fallback={<div className="tabLoader">Завантаження любові...</div>}>{renderContent()}</Suspense>
           </div>
         </div>
       )}

@@ -13,6 +13,8 @@ type LoginScreenProps = {
   errorMessage: string
   showGreeting: boolean
   canSubmit: boolean
+  isLocked: boolean
+  focusSignal: number
 }
 
 const LoginScreen = ({
@@ -24,6 +26,8 @@ const LoginScreen = ({
   errorMessage,
   showGreeting,
   canSubmit,
+  isLocked,
+  focusSignal,
 }: LoginScreenProps) => {
   const portalRef = useRef<HTMLDivElement | null>(null)
   const heartRef = useRef<SVGSVGElement | null>(null)
@@ -31,6 +35,7 @@ const LoginScreen = ({
   const introRef = useRef<HTMLDivElement | null>(null)
   const formRef = useRef<HTMLDivElement | null>(null)
   const errorRef = useRef<HTMLParagraphElement | null>(null)
+  const inputRef = useRef<HTMLInputElement | null>(null)
   const pulseRef = useRef<ReturnType<typeof animate> | null>(null)
   const heartSequenceRef = useRef<ReturnType<typeof createTimeline> | null>(null)
   const entryTimelineRef = useRef<ReturnType<typeof createTimeline> | null>(null)
@@ -198,6 +203,16 @@ const LoginScreen = ({
     }
   }, [errorMessage])
 
+  useEffect(() => {
+    if (!inputRef.current) return
+    inputRef.current.focus()
+  }, [])
+
+  useEffect(() => {
+    if (!inputRef.current) return
+    inputRef.current.focus()
+  }, [focusSignal])
+
   return (
     <div className={styles.loginScreen}>
       <div ref={portalRef} className={`${styles.heartPortal} ${isHeartLit ? styles.heartPortalLit : ''}`}>
@@ -207,8 +222,13 @@ const LoginScreen = ({
         <h1 className={styles.title}>Назви нашу особливу дату</h1>
         <p className={styles.hint}>Введи її у форматі дд.мм.рррр — і серце загориться.</p>
       </div>
-      <div ref={formRef} className={styles.inputRow}>
+      <div
+        ref={formRef}
+        className={`${styles.inputRow} ${isLocked ? styles.inputRowLocked : ''}`}
+        aria-disabled={isLocked}
+      >
         <input
+          ref={inputRef}
           value={dateInput}
           onChange={(event) => onDateChange(event.target.value)}
           onKeyDown={onInputKeyDown}
@@ -217,19 +237,33 @@ const LoginScreen = ({
           maxLength={10}
           className={styles.input}
         />
-        <button type="button" onClick={onSubmit} disabled={!canSubmit} className={styles.submitButton}>
+        <button
+          type="button"
+          onClick={onSubmit}
+          disabled={!canSubmit || isLocked}
+          className={styles.submitButton}
+          aria-disabled={isLocked || !canSubmit}
+        >
           Відкрити
         </button>
       </div>
+      {isLocked && <p className={styles.lockMessage}>Зачекай кілька секунд перед наступною спробою 💞</p>}
       {errorMessage && (
-        <p ref={errorRef} className={styles.errorMessage}>
+        <p ref={errorRef} className={styles.errorMessage} role="alert" aria-live="assertive">
           {errorMessage}
         </p>
       )}
       {showGreeting && (
-        <p ref={greetingRef} className={styles.greeting}>
-          Вітаю, моя кохана 💖
-        </p>
+        <div className={styles.greetingWrap} aria-live="polite">
+          <div className={styles.greetingConfetti} aria-hidden="true">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <span key={index} className={styles.confettiDot} />
+            ))}
+          </div>
+          <p ref={greetingRef} className={styles.greeting}>
+            Вітаю, моя кохана 💖
+          </p>
+        </div>
       )}
     </div>
   )

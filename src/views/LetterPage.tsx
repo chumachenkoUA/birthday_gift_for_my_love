@@ -17,6 +17,7 @@ const SMILE_DURATION = 6000
 const LetterPage = ({ onAccentChange, letter, audioSrc, smileImage }: LetterPageProps) => {
   const [displayedText, setDisplayedText] = useState('')
   const [showSmile, setShowSmile] = useState(false)
+  const [isMuted, setIsMuted] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const typeTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const smileTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -63,6 +64,11 @@ const LetterPage = ({ onAccentChange, letter, audioSrc, smileImage }: LetterPage
   }, [])
 
   useEffect(() => {
+    if (!audioRef.current) return
+    audioRef.current.muted = isMuted
+  }, [isMuted])
+
+  useEffect(() => {
     if (!sheetRef.current) return
     const animation = animate(sheetRef.current, {
       opacity: [0, 1],
@@ -87,6 +93,9 @@ const LetterPage = ({ onAccentChange, letter, audioSrc, smileImage }: LetterPage
   }
 
   const isDone = displayedText === letter
+  const toggleMute = () => {
+    setIsMuted((prev) => !prev)
+  }
 
   return (
     <div className={styles.page}>
@@ -97,9 +106,20 @@ const LetterPage = ({ onAccentChange, letter, audioSrc, smileImage }: LetterPage
           <span className={`${styles.cursor} ${isDone ? styles.cursorDone : ''}`}>|</span>
         </p>
       </div>
-      <button type="button" className={styles.sparkleButton} onClick={handleSmileReveal}>
-        ✨ Натисни, якщо хочеш усміхнутись
-      </button>
+      <div className={styles.controlsRow}>
+        <button type="button" className={styles.sparkleButton} onClick={handleSmileReveal}>
+          ✨ Натисни, якщо хочеш усміхнутись
+        </button>
+        <button
+          type="button"
+          className={styles.muteButton}
+          onClick={toggleMute}
+          aria-pressed={isMuted}
+          aria-label={isMuted ? 'Увімкнути звук' : 'Вимкнути звук'}
+        >
+          {isMuted ? '🔇 Тихий режим' : '🔊 Зі звуком'}
+        </button>
+      </div>
       {showSmile && (
         <div className={styles.smilePopup} role="status">
           <div className={styles.confettiLayer}>
@@ -108,7 +128,7 @@ const LetterPage = ({ onAccentChange, letter, audioSrc, smileImage }: LetterPage
             ))}
           </div>
           <p>Люблю тебе</p>
-          <img src={smileImage} alt="Наша посмішка" />
+          <img src={smileImage} alt="Наша посмішка" loading="lazy" decoding="async" />
         </div>
       )}
       <audio ref={audioRef} src={audioSrc} loop className={styles.srOnly} />

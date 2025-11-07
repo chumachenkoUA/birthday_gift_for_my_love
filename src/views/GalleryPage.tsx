@@ -14,6 +14,7 @@ const GalleryPage = ({ photos, onAccentChange }: GalleryPageProps) => {
   const [revealed, setRevealed] = useState<Record<string, boolean>>({})
   const filmstripRef = useRef<HTMLDivElement | null>(null)
   const photoRefs = useRef<Record<string, HTMLElement | null>>({})
+  const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     onAccentChange(GALLERY_ACCENT)
@@ -40,6 +41,14 @@ const GalleryPage = ({ photos, onAccentChange }: GalleryPageProps) => {
     }
   }, [photos])
 
+  useEffect(() => {
+    return () => {
+      if (holdTimerRef.current) {
+        clearTimeout(holdTimerRef.current)
+      }
+    }
+  }, [])
+
   const handleReveal = (id: string) => {
     setRevealed((prev) => ({ ...prev, [id]: true }))
     window.requestAnimationFrame(() => {
@@ -52,6 +61,31 @@ const GalleryPage = ({ photos, onAccentChange }: GalleryPageProps) => {
         easing: 'easeOutBack',
       })
     })
+  }
+
+  const handleRevealPressStart = (id: string) => {
+    if (holdTimerRef.current) {
+      clearTimeout(holdTimerRef.current)
+    }
+    holdTimerRef.current = setTimeout(() => {
+      handleReveal(id)
+      holdTimerRef.current = null
+    }, 450)
+  }
+
+  const handleRevealPressEnd = (id: string) => {
+    if (holdTimerRef.current) {
+      clearTimeout(holdTimerRef.current)
+      holdTimerRef.current = null
+      handleReveal(id)
+    }
+  }
+
+  const cancelRevealHold = () => {
+    if (holdTimerRef.current) {
+      clearTimeout(holdTimerRef.current)
+      holdTimerRef.current = null
+    }
   }
 
   return (
@@ -74,11 +108,22 @@ const GalleryPage = ({ photos, onAccentChange }: GalleryPageProps) => {
                 <img
                   src={photo.src}
                   alt={photo.alt}
+                  loading="lazy"
+                  decoding="async"
                   className={`${styles.image} ${isRevealed ? '' : styles.imageBlurred}`}
                 />
                 {photo.revealable && !isRevealed && (
-                  <button type="button" className={styles.revealButton} onClick={() => handleReveal(photo.id)}>
+                  <button
+                    type="button"
+                    className={styles.revealButton}
+                    onClick={() => handleReveal(photo.id)}
+                    onPointerDown={() => handleRevealPressStart(photo.id)}
+                    onPointerUp={() => handleRevealPressEnd(photo.id)}
+                    onPointerLeave={cancelRevealHold}
+                    aria-label="Розкрити приховану історію"
+                  >
                     Розкрити
+                    <span className={styles.secretHint}>Торкнись і утримуй</span>
                   </button>
                 )}
                 <span className={`${styles.perforation} ${styles.perforationTop}`} aria-hidden="true" />

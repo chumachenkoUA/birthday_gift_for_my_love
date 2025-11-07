@@ -1,73 +1,38 @@
-# React + TypeScript + Vite
+# Love Access ─ персональний подарунок
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Невеликий React/Vite застосунок, що відкривається після вводу «нашої особливої дати» й веде крізь лист, музику, галерею фото та медичну картку з теплим діагнозом.
 
-Currently, two official plugins are available:
+## Команди
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+| Скрипт           | Призначення                |
+| ---------------- | -------------------------- |
+| `npm run dev`    | режим розробки з HMR       |
+| `npm run build`  | перевірка тайпінгу + build |
+| `npm run preview`| перегляд зібраного білда   |
 
-## React Compiler
+## Структура контенту
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Дані (пісні, фото, тексти) описані в `src/data/content.ts`.
+- Усі медіа лежать у `public/photos` та `public/audio`:
+  - обкладинки аудіо: `/photos/moonlight.jpg`, `/photos/laughter.jpg`, `/photos/home.jpg`
+  - галерея: `/photos/sunrise.jpg`, `/photos/lake.jpg`, `/photos/laugh.jpg`, `/photos/secret.jpg`, `/photos/city.jpg`
+  - листівка: `/photos/smile.jpg`
+  - треки: `/audio/moonlight.mp3`, `/audio/laughter.mp3`, `/audio/home.mp3`, `/audio/piano.mp3`
+- Щоб замінити контент, просто поклади свої файли з такими ж назвами або онови шляхи у `content.ts`.
 
-## Expanding the ESLint configuration
+## Особливості
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Легке `animejs` для мікро-анімацій (серце, вкладки, сторінки).
+- Лazy-load усіх view (`React.lazy` + `Suspense`), тому перший екран відкривається швидше.
+- Аксесібіліті: aria-live для помилок, клавіатурна навігація вкладок, підказки для мобільного жесту «торкнись і утримуй».
+- Кнопка «📝 Виписати рецепт» на сторінці сюрпризу відкриває друковану версію (можна зберегти у PDF).
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Пакування / поширення
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Якщо ділишся архівом:
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+1. Виконай `npm run build`, щоб переконатися, що проєкт збирається.
+2. До архіву включи `dist/` (або весь репозиторій без важких службових тек).
+3. **Виключи** службові каталоги `.git/`, `.idea/`, `node_modules/`, тимчасові файли та будь-які системні артефакти (наприклад, `.DS_Store`). Це зменшить вагу й захистить від випадкового поширення приватних даних.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Нехай подарунок викликає посмішку 💖

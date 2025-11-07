@@ -8,6 +8,7 @@
   justify-content: center;
   padding: 48px 24px;
   transition: background 0.8s ease, filter 0.6s ease;
+  box-sizing: border-box;
 }
 
 .mainLayout {
@@ -22,6 +23,19 @@
   width: 100%;
   display: flex;
   justify-content: center;
+  min-height: 380px;
+}
+
+.tabLoader {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 32px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.06);
+  font-weight: 600;
+  color: $color-primary;
 }
 
 @media (max-width: 960px) {
@@ -31,5 +45,25 @@
 
   .mainLayout {
     max-width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .appShell {
+    padding: 24px 12px;
+  }
+
+  .mainLayout {
+    padding-bottom: 48px;
+  }
+}
+
+@media (max-width: 420px) {
+  .appShell {
+    padding: 16px 10px;
+  }
+
+  .tabContent {
+    width: 100%;
   }
 }

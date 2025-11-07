@@ -5,6 +5,7 @@
   margin-bottom: 24px;
   display: flex;
   justify-content: center;
+  padding: 0 8px;
 }
 
 .tabs {
@@ -50,9 +51,17 @@
     color: $color-primary;
     transform: translateY(-2px);
   }
+
+  &:focus-visible {
+    outline: 3px solid rgba(242, 119, 162, 0.3);
+    outline-offset: 3px;
+  }
 }
 
 .tabActive {
+  color: $color-primary;
+}
+.tab[aria-selected='true'] {
   color: $color-primary;
 }
 
@@ -68,18 +77,17 @@
 
 @media (max-width: 720px) {
   .tabs {
-    gap: 4px;
-    padding: 6px;
-    overflow-x: auto;
-    scrollbar-width: none;
+    gap: 6px;
+    padding: 8px;
+    flex-wrap: wrap;
+  }
 
-    &::-webkit-scrollbar {
-      display: none;
-    }
+  .indicator {
+    display: none;
   }
 
   .tab {
-    min-width: 180px;
+    min-width: calc(50% - 8px);
     padding: 14px 16px;
   }
 
@@ -89,5 +97,38 @@
 
   .note {
     font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .tabsWrapper {
+    justify-content: center;
+  }
+
+  .tabs {
+    width: 100%;
+    gap: 6px;
+    padding: 6px 4px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .tab {
+    min-width: calc(50% - 8px);
+    padding: 12px;
+  }
+
+  .label {
+    font-size: 0.95rem;
+  }
+
+  .note {
+    font-size: 0.78rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .tab {
+    min-width: 100%;
   }
 }

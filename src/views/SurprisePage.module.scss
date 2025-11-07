@@ -156,6 +156,28 @@
   animation: diagnoseSweep 2.6s ease-in-out infinite;
 }
 
+.exportButton {
+  align-self: center;
+  padding: 12px 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 137, 186, 0.4);
+  background: rgba(255, 255, 255, 0.95);
+  color: $color-primary;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(221, 119, 162, 0.28);
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(255, 137, 186, 0.4);
+    outline-offset: 3px;
+  }
+}
+
 @keyframes diagnoseSweep {
   0% {
     transform: translateX(-100%);
@@ -185,5 +207,64 @@
 @media (max-width: 540px) {
   .diagnoseButton {
     width: 100%;
+  }
+
+  .card {
+    padding: 26px 20px;
+  }
+
+  .table {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .page {
+    padding: 24px 16px;
+  }
+
+  .card {
+    border-radius: 24px;
+  }
+
+  .table {
+    display: block;
+
+    tbody {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    tr {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid $color-card-border;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    th,
+    td {
+      width: 100%;
+      border: none;
+    }
+
+    th {
+      border-bottom: 1px solid $color-card-border;
+    }
+  }
+
+  .exportButton,
+  .diagnoseButton {
+    width: 100%;
+  }
+
+  .ecg {
+    padding: 14px;
+  }
+
+  .progressTrack {
+    height: 6px;
   }
 }

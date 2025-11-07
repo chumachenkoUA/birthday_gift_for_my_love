@@ -17,6 +17,7 @@ export interface Song {
   color: string
   audio: string
   image: string
+  lines?: string[]
 }
 
 export interface GalleryPhoto {

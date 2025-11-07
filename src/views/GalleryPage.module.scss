@@ -96,10 +96,34 @@
   font-weight: 600;
   cursor: pointer;
   transition: background 0.25s ease, transform 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  font-size: 0.95rem;
 
   &:hover {
     background: rgba(255, 174, 207, 1);
     transform: translateX(50%) translateY(-2px);
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(255, 174, 207, 0.5);
+    outline-offset: 3px;
+  }
+}
+
+.secretHint {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(77, 23, 48, 0.8);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .secretHint {
+    display: none;
   }
 }
 
@@ -149,5 +173,45 @@
 
   .photo {
     min-width: 200px;
+  }
+}
+
+@media (max-width: 600px) {
+  .page {
+    border-radius: 24px;
+    padding: 28px 22px;
+  }
+
+  .filmstrip {
+    flex-direction: column;
+    overflow: visible;
+    gap: 16px;
+  }
+
+  .photo {
+    width: 100%;
+    min-width: unset;
+  }
+}
+
+@media (max-width: 420px) {
+  .page {
+    padding: 24px 16px;
+  }
+
+  .title {
+    font-size: 1.6rem;
+  }
+
+  .photo {
+    padding: 16px 16px 22px;
+  }
+
+  .image {
+    aspect-ratio: 4 / 5;
+  }
+
+  .revealButton {
+    font-size: 0.9rem;
   }
 }

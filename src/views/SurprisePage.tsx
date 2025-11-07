@@ -79,6 +79,45 @@ const SurprisePage = ({ onAccentChange, copy }: SurprisePageProps) => {
     }, DIAGNOSIS_DURATION)
   }
 
+  const handleExport = () => {
+    const popup = window.open('', '_blank', 'width=600,height=800')
+    if (!popup) return
+    popup.document.write(`<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <title>Медична картка любові</title>
+  <style>
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background:#fff0f6; margin:0; padding:32px; color:#5a2d3a;}
+    h1 { text-align:center; }
+    .card { background:white; border-radius:24px; padding:24px; box-shadow:0 20px 40px rgba(0,0,0,.08); }
+    table { width:100%; border-collapse:collapse; margin-top:16px; }
+    th, td { padding:12px 16px; border-bottom:1px solid #f4cfe1; text-align:left; }
+    th { width:35%; color:#b13c6b; }
+    footer { margin-top:24px; text-align:center; font-weight:600; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Медична картка любові</h1>
+    <p><strong>Пацієнт:</strong> ${copy.headerName}</p>
+    <p><strong>Діагноз:</strong> Хронічна закоханість у ${copy.headerBeloved}</p>
+    <table>
+      <tr><th>Симптоми</th><td>${copy.symptoms}</td></tr>
+      <tr><th>Лікування</th><td>${copy.treatment}</td></tr>
+      <tr><th>Прогноз</th><td>${copy.prognosis}</td></tr>
+      <tr><th>Висновок</th><td>${copy.diagnosis}</td></tr>
+    </table>
+    <footer>Підпис лікаря: ❤️</footer>
+  </div>
+  <script>
+    window.onload = () => { window.focus(); window.print(); };
+  </script>
+</body>
+</html>`)
+    popup.document.close()
+  }
+
   return (
     <div className={styles.page}>
       <h2 className={styles.title}>Медична картка любові</h2>
@@ -106,6 +145,9 @@ const SurprisePage = ({ onAccentChange, copy }: SurprisePageProps) => {
         <button type="button" className={styles.diagnoseButton} onClick={runDiagnosis} disabled={isDiagnosing}>
           {isDiagnosing ? 'Діагностика...' : '🧠 Провести діагностику'}
         </button>
+        <button type="button" className={styles.exportButton} onClick={handleExport}>
+          📝 Виписати рецепт
+        </button>
         {isDiagnosing && (
           <div className={styles.ecg} aria-live="polite">
             <span className={styles.ecgLine} />
@@ -117,7 +159,7 @@ const SurprisePage = ({ onAccentChange, copy }: SurprisePageProps) => {
           </div>
         )}
         {showResult && (
-          <p ref={resultRef} className={styles.result}>
+          <p ref={resultRef} className={styles.result} aria-live="polite">
             {copy.diagnosis}
           </p>
         )}

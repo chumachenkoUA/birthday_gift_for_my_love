@@ -80,8 +80,15 @@
   }
 }
 
-.sparkleButton {
+.controlsRow {
   align-self: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+.sparkleButton {
   padding: 14px 26px;
   border-radius: 999px;
   border: none;
@@ -96,6 +103,37 @@
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 24px 60px rgba(244, 145, 190, 0.45);
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(255, 165, 209, 0.5);
+    outline-offset: 3px;
+  }
+}
+
+.muteButton {
+  padding: 14px 24px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 162, 186, 0.4);
+  background: rgba(255, 255, 255, 0.95);
+  color: $color-primary;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border 0.2s ease;
+
+  &[aria-pressed='true'] {
+    border-color: rgba(133, 60, 96, 0.3);
+    background: rgba(255, 255, 255, 0.85);
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(133, 60, 96, 0.16);
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(255, 162, 186, 0.4);
+    outline-offset: 3px;
   }
 }
 
@@ -209,7 +247,33 @@
     padding: 24px;
   }
 
-  .sparkleButton {
+  .controlsRow {
     width: 100%;
+    flex-direction: column;
+  }
+
+  .sparkleButton,
+  .muteButton {
+    width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .page {
+    padding: 24px 16px;
+    gap: 18px;
+  }
+
+  .title {
+    font-size: 1.7rem;
+  }
+
+  .sheet {
+    padding: 20px;
+  }
+
+  .sparkleButton,
+  .muteButton {
+    font-size: 0.95rem;
   }
 }

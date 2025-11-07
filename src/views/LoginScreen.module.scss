@@ -58,6 +58,12 @@
   gap: 12px;
   justify-content: center;
   align-items: center;
+  transition: opacity 0.3s ease;
+}
+
+.inputRowLocked {
+  opacity: 0.6;
+  pointer-events: none;
 }
 
 .input {
@@ -98,6 +104,11 @@
     transform: translateY(-2px);
     box-shadow: 0 14px 32px rgba(242, 119, 162, 0.38);
   }
+
+  &:focus-visible {
+    outline: 3px solid rgba(255, 133, 182, 0.5);
+    outline-offset: 3px;
+  }
 }
 
 .errorMessage {
@@ -106,10 +117,87 @@
   margin-top: 18px;
 }
 
+.lockMessage {
+  margin-top: 16px;
+  font-size: 0.95rem;
+  color: $color-secondary;
+}
+
 .greeting {
   margin-top: 24px;
   font-size: 1.25rem;
   color: $color-primary;
+}
+
+.greetingWrap {
+  position: relative;
+  margin-top: 24px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.greetingConfetti {
+  position: absolute;
+  inset: -16px auto auto;
+  width: 180px;
+  height: 120px;
+  pointer-events: none;
+}
+
+.confettiDot {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  opacity: 0;
+  animation: pop 1.8s ease forwards;
+
+  &:nth-child(1) {
+    left: 12%;
+    background: #ffc6de;
+    animation-delay: 0s;
+  }
+  &:nth-child(2) {
+    left: 32%;
+    background: #ffd5e9;
+    animation-delay: 0.1s;
+  }
+  &:nth-child(3) {
+    left: 52%;
+    background: #ffe3f1;
+    animation-delay: 0.2s;
+  }
+  &:nth-child(4) {
+    left: 72%;
+    background: #ffc1d8;
+    animation-delay: 0.3s;
+  }
+  &:nth-child(5) {
+    left: 88%;
+    background: #ffb0ce;
+    animation-delay: 0.4s;
+  }
+  &:nth-child(6) {
+    left: 5%;
+    background: #ffd2ec;
+    animation-delay: 0.5s;
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: translateY(0) scale(0.5);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-50px) scale(1.1);
+    opacity: 0;
+  }
 }
 
 @media (max-width: 720px) {
@@ -133,5 +221,43 @@
 @media (max-width: 540px) {
   .title {
     font-size: 1.9rem;
+  }
+
+  .heartPortal {
+    width: 140px;
+    height: 140px;
+  }
+}
+
+@media (max-width: 420px) {
+  .loginScreen {
+    padding: 28px 20px;
+    border-radius: 24px;
+  }
+
+  .intro {
+    margin-bottom: 18px;
+  }
+
+  .title {
+    font-size: 1.7rem;
+  }
+
+  .hint {
+    font-size: 0.95rem;
+  }
+
+  .heartPortal {
+    width: 120px;
+    height: 120px;
+  }
+
+  .inputRow {
+    gap: 8px;
+  }
+
+  .submitButton {
+    font-size: 1rem;
+    padding: 12px 18px;
   }
 }

@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import { animate } from 'animejs'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import type { CSSProperties } from 'react'
 import type { AccentSetter, Song } from '../types'
 import styles from './MusicPage.module.scss'
 
@@ -8,118 +8,116 @@ type MusicPageProps = {
   onAccentChange: AccentSetter
 }
 
+const LINE_INTERVAL = 16000
+
 const MusicPage = ({ songs, onAccentChange }: MusicPageProps) => {
-  const [activeSong, setActiveSong] = useState<Song>(songs[0])
+  const anthem = songs[0]
+  const lines = anthem?.lines ?? []
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [currentLineIndex, setCurrentLineIndex] = useState(0)
+  const [showHeart, setShowHeart] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const playerRef = useRef<HTMLDivElement | null>(null)
-  const tracksRef = useRef<HTMLDivElement | null>(null)
-  const trackAnimationsRef = useRef<Array<ReturnType<typeof animate>>>([])
+  const lineTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  const accentStyle = useMemo(
+    () => ({ '--anthem-color': anthem?.color ?? '#f8bcd8' } as CSSProperties),
+    [anthem],
+  )
 
   useEffect(() => {
-    onAccentChange(activeSong.color)
-  }, [activeSong, onAccentChange])
-
-  useEffect(() => {
+    if (!anthem) return
+    onAccentChange(anthem.color)
     return () => {
       onAccentChange(null)
     }
-  }, [onAccentChange])
+  }, [anthem, onAccentChange])
 
   useEffect(() => {
-    if (!playerRef.current) return
-    playerRef.current.style.opacity = '0'
-    const animation = animate(playerRef.current, {
-      translateY: [-6, 0],
-      opacity: [0, 1],
-      duration: 520,
-      easing: 'easeOutQuad',
-    })
+    const audio = audioRef.current
+    if (!audio) return
+
+    const handlePlay = () => {
+      setIsPlaying(true)
+      setShowHeart(false)
+    }
+
+    const handlePause = () => {
+      setIsPlaying(false)
+    }
+
+    const handleEnded = () => {
+      setIsPlaying(false)
+      setShowHeart(true)
+      setCurrentLineIndex(0)
+    }
+
+    audio.addEventListener('play', handlePlay)
+    audio.addEventListener('pause', handlePause)
+    audio.addEventListener('ended', handleEnded)
 
     return () => {
-      animation.pause()
+      audio.removeEventListener('play', handlePlay)
+      audio.removeEventListener('pause', handlePause)
+      audio.removeEventListener('ended', handleEnded)
     }
   }, [])
 
   useEffect(() => {
-    if (!playerRef.current) return
-    const animation = animate(playerRef.current, {
-      keyframes: [
-        { opacity: 0.4, translateY: 12 },
-        { opacity: 1, translateY: 0 },
-      ],
-      duration: 420,
-      easing: 'easeOutQuad',
-    })
-
-    return () => {
-      animation.pause()
-    }
-  }, [activeSong])
-
-  useEffect(() => {
-    if (!tracksRef.current) return
-    const cards = Array.from(tracksRef.current.querySelectorAll('button'))
-    if (!cards.length) return
-
-    trackAnimationsRef.current.forEach((animation) => animation.pause())
-    trackAnimationsRef.current = cards.map((card, index) =>
-      animate(card, {
-        opacity: [0, 1],
-        translateY: [14, 0],
-        duration: 420,
-        delay: index * 80,
-        easing: 'easeOutQuad',
-      }),
-    )
-
-    return () => {
-      trackAnimationsRef.current.forEach((animation) => animation.pause())
-      trackAnimationsRef.current = []
-    }
-  }, [songs])
-
-  useEffect(() => {
-    if (!audioRef.current) {
+    if (!lines.length || !isPlaying) {
+      if (lineTimerRef.current) {
+        clearInterval(lineTimerRef.current)
+      }
       return
     }
-    void audioRef.current.play().catch(() => undefined)
-  }, [activeSong])
+
+    lineTimerRef.current = setInterval(() => {
+      setCurrentLineIndex((prev) => (prev + 1) % lines.length)
+    }, LINE_INTERVAL)
+
+    return () => {
+      if (lineTimerRef.current) {
+        clearInterval(lineTimerRef.current)
+      }
+    }
+  }, [isPlaying, lines.length])
+
+  const togglePlay = () => {
+    const audio = audioRef.current
+    if (!audio) return
+    if (isPlaying) {
+      audio.pause()
+    } else {
+      void audio.play().catch(() => undefined)
+    }
+  }
+
+  const displayedLine = lines[currentLineIndex] ?? anthem?.memory ?? 'Наша мелодія про кохання'
+
+  if (!anthem) {
+    return null
+  }
 
   return (
-    <div className={styles.page}>
-      <h2 className={styles.title}>Плеєр спогадів</h2>
-      <div className={styles.layout}>
-        <div ref={tracksRef} className={styles.tracks}>
-          {songs.map((song) => (
-            <button
-              type="button"
-              key={song.id}
-              className={`${styles.songCard} ${song.id === activeSong.id ? styles.songCardActive : ''}`}
-              onClick={() => setActiveSong(song)}
-            >
-              <div className={styles.songCover} style={{ backgroundImage: `url(${song.image})` }} aria-hidden="true" />
-              <div className={styles.songInfo}>
-                <strong>{song.title}</strong>
-                <span>{song.memory}</span>
-              </div>
-            </button>
-          ))}
+    <div className={styles.page} style={accentStyle} data-playing={isPlaying}>
+      <div className={styles.overlay} aria-hidden="true" />
+      <div className={styles.content}>
+        <p className={styles.label}>Пісня, що нагадує мені тебе</p>
+        <h2 className={styles.title}>{anthem.title}</h2>
+        <p className={styles.subtitle}>{anthem.memory}</p>
+        <button type="button" className={styles.playButton} onClick={togglePlay} aria-pressed={isPlaying}>
+          <span>{isPlaying ? 'Пауза' : 'Play'}</span>
+        </button>
+        <audio ref={audioRef} src={anthem.audio} preload="auto">
+          Ваш браузер не підтримує відтворення аудіо.
+        </audio>
+        <div className={styles.lineTicker} aria-live="polite">
+          <span className={styles.lineText}>{displayedLine}</span>
         </div>
-        <div ref={playerRef} className={styles.player}>
-          <p className={styles.now}>Зараз грає:</p>
-          <h3 className={styles.songTitle}>{activeSong.title}</h3>
-          <p className={styles.memory}>{activeSong.memory}</p>
-          <audio
-            ref={audioRef}
-            key={activeSong.audio}
-            className={styles.audio}
-            controls
-            autoPlay
-            src={activeSong.audio}
-          >
-            Ваш браузер не підтримує відтворення аудіо.
-          </audio>
-        </div>
+        {showHeart && (
+          <div className={styles.endingHeart} aria-live="polite">
+            <span />
+          </div>
+        )}
       </div>
     </div>
   )
