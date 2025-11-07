@@ -13,6 +13,7 @@ const GALLERY_ACCENT = '#f6d5f7'
 const GalleryPage = ({ photos, onAccentChange }: GalleryPageProps) => {
   const [revealed, setRevealed] = useState<Record<string, boolean>>({})
   const filmstripRef = useRef<HTMLDivElement | null>(null)
+  const photoRefs = useRef<Record<string, HTMLElement | null>>({})
 
   useEffect(() => {
     onAccentChange(GALLERY_ACCENT)
@@ -41,6 +42,16 @@ const GalleryPage = ({ photos, onAccentChange }: GalleryPageProps) => {
 
   const handleReveal = (id: string) => {
     setRevealed((prev) => ({ ...prev, [id]: true }))
+    window.requestAnimationFrame(() => {
+      const target = photoRefs.current[id]
+      if (!target) return
+      animate(target, {
+        scale: [0.95, 1],
+        rotate: [-1.2, 0],
+        duration: 480,
+        easing: 'easeOutBack',
+      })
+    })
   }
 
   return (
@@ -52,6 +63,9 @@ const GalleryPage = ({ photos, onAccentChange }: GalleryPageProps) => {
           return (
             <figure
               key={photo.id}
+              ref={(element) => {
+                photoRefs.current[photo.id] = element
+              }}
               className={`${styles.photo} ${photo.revealable ? styles.photoSecret : ''} ${
                 isRevealed ? styles.photoRevealed : ''
               }`}

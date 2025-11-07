@@ -12,6 +12,8 @@ const MusicPage = ({ songs, onAccentChange }: MusicPageProps) => {
   const [activeSong, setActiveSong] = useState<Song>(songs[0])
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const playerRef = useRef<HTMLDivElement | null>(null)
+  const tracksRef = useRef<HTMLDivElement | null>(null)
+  const trackAnimationsRef = useRef<Array<ReturnType<typeof animate>>>([])
 
   useEffect(() => {
     onAccentChange(activeSong.color)
@@ -25,6 +27,7 @@ const MusicPage = ({ songs, onAccentChange }: MusicPageProps) => {
 
   useEffect(() => {
     if (!playerRef.current) return
+    playerRef.current.style.opacity = '0'
     const animation = animate(playerRef.current, {
       translateY: [-6, 0],
       opacity: [0, 1],
@@ -38,6 +41,44 @@ const MusicPage = ({ songs, onAccentChange }: MusicPageProps) => {
   }, [])
 
   useEffect(() => {
+    if (!playerRef.current) return
+    const animation = animate(playerRef.current, {
+      keyframes: [
+        { opacity: 0.4, translateY: 12 },
+        { opacity: 1, translateY: 0 },
+      ],
+      duration: 420,
+      easing: 'easeOutQuad',
+    })
+
+    return () => {
+      animation.pause()
+    }
+  }, [activeSong])
+
+  useEffect(() => {
+    if (!tracksRef.current) return
+    const cards = Array.from(tracksRef.current.querySelectorAll('button'))
+    if (!cards.length) return
+
+    trackAnimationsRef.current.forEach((animation) => animation.pause())
+    trackAnimationsRef.current = cards.map((card, index) =>
+      animate(card, {
+        opacity: [0, 1],
+        translateY: [14, 0],
+        duration: 420,
+        delay: index * 80,
+        easing: 'easeOutQuad',
+      }),
+    )
+
+    return () => {
+      trackAnimationsRef.current.forEach((animation) => animation.pause())
+      trackAnimationsRef.current = []
+    }
+  }, [songs])
+
+  useEffect(() => {
     if (!audioRef.current) {
       return
     }
@@ -48,7 +89,7 @@ const MusicPage = ({ songs, onAccentChange }: MusicPageProps) => {
     <div className={styles.page}>
       <h2 className={styles.title}>Плеєр спогадів</h2>
       <div className={styles.layout}>
-        <div className={styles.tracks}>
+        <div ref={tracksRef} className={styles.tracks}>
           {songs.map((song) => (
             <button
               type="button"

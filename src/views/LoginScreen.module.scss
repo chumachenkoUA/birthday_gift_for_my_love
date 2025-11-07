@@ -34,16 +34,23 @@
   box-shadow: 0 30px 80px $color-portal-shadow-strong;
 }
 
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
 .title {
   font-family: $font-display;
   font-size: 2.2rem;
-  margin-bottom: 8px;
+  margin: 0;
   color: $color-primary;
 }
 
 .hint {
   color: $color-secondary;
-  margin-bottom: 32px;
+  margin: 0;
 }
 
 .inputRow {

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { KeyboardEvent } from 'react'
+import { animate } from 'animejs'
 import './App.scss'
 import { galleryPhotos, letterContent, menuItems, SECRET_DATE, songs, surpriseCopy } from './data/content'
 import type { MenuTarget, View } from './types'
@@ -21,6 +22,7 @@ function App() {
   const [showGreeting, setShowGreeting] = useState(false)
   const [accentColor, setAccentColor] = useState<string | null>(null)
   const timersRef = useRef<Array<ReturnType<typeof setTimeout>>>([])
+  const contentRef = useRef<HTMLDivElement | null>(null)
 
   const digitsInSecret = useMemo(() => SECRET_DATE.replace(/\D/g, '').length, [])
 
@@ -122,6 +124,23 @@ function App() {
 
   const canSubmit = dateInput.replace(/\D/g, '').length === digitsInSecret
 
+  useEffect(() => {
+    if (view === 'login') return
+    const container = contentRef.current
+    if (!container) return
+    container.style.opacity = '0'
+    const animation = animate(container, {
+      opacity: [0, 1],
+      translateY: [14, 0],
+      duration: 520,
+      easing: 'easeOutQuad',
+    })
+
+    return () => {
+      animation.pause()
+    }
+  }, [view])
+
   const renderContent = () => {
     switch (view) {
       case 'letter':
@@ -160,7 +179,9 @@ function App() {
       ) : (
         <div className="mainLayout">
           <NavigationTabs active={view} items={menuItems} onSelect={handleSelectTab} />
-          <div className="tabContent">{renderContent()}</div>
+          <div ref={contentRef} className="tabContent">
+            {renderContent()}
+          </div>
         </div>
       )}
     </div>

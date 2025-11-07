@@ -25,6 +25,7 @@ const SurprisePage = ({ onAccentChange, copy }: SurprisePageProps) => {
   const [showResult, setShowResult] = useState(false)
   const diagnoseTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const cardRef = useRef<HTMLDivElement | null>(null)
+  const resultRef = useRef<HTMLParagraphElement | null>(null)
 
   useEffect(() => {
     onAccentChange(SURPRISE_ACCENT)
@@ -49,6 +50,21 @@ const SurprisePage = ({ onAccentChange, copy }: SurprisePageProps) => {
       animation.pause()
     }
   }, [])
+
+  useEffect(() => {
+    if (!showResult || !resultRef.current) return
+    const animation = animate(resultRef.current, {
+      opacity: [0, 1],
+      scale: [0.95, 1],
+      translateY: [10, 0],
+      duration: 520,
+      easing: 'easeOutBack',
+    })
+
+    return () => {
+      animation.pause()
+    }
+  }, [showResult])
 
   const runDiagnosis = () => {
     if (isDiagnosing) return
@@ -95,7 +111,16 @@ const SurprisePage = ({ onAccentChange, copy }: SurprisePageProps) => {
             <span className={styles.ecgLine} />
           </div>
         )}
-        {showResult && <p className={styles.result}>{copy.diagnosis}</p>}
+        {isDiagnosing && (
+          <div className={styles.progressTrack} aria-hidden="true">
+            <span className={styles.progressBar} />
+          </div>
+        )}
+        {showResult && (
+          <p ref={resultRef} className={styles.result}>
+            {copy.diagnosis}
+          </p>
+        )}
       </div>
     </div>
   )

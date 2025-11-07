@@ -1,7 +1,7 @@
 import { forwardRef, useMemo } from 'react'
 import styles from './HeartIcon.module.scss'
 
-type HeartIconProps = {
+export type HeartIconProps = {
   lit?: boolean
   className?: string
 }
