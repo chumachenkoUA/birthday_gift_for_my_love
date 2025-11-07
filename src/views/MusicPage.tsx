@@ -8,16 +8,12 @@ type MusicPageProps = {
   onAccentChange: AccentSetter
 }
 
-const LINE_INTERVAL = 16000
-
 const MusicPage = ({ songs, onAccentChange }: MusicPageProps) => {
   const anthem = songs[0]
-  const lines = anthem?.lines ?? []
+  const coverImage = anthem?.image ?? '/photos/eve-ghost-avenue.jpg'
   const [isPlaying, setIsPlaying] = useState(false)
-  const [currentLineIndex, setCurrentLineIndex] = useState(0)
   const [showHeart, setShowHeart] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const lineTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const accentStyle = useMemo(
     () => ({ '--anthem-color': anthem?.color ?? '#f8bcd8' } as CSSProperties),
@@ -48,7 +44,6 @@ const MusicPage = ({ songs, onAccentChange }: MusicPageProps) => {
     const handleEnded = () => {
       setIsPlaying(false)
       setShowHeart(true)
-      setCurrentLineIndex(0)
     }
 
     audio.addEventListener('play', handlePlay)
@@ -62,25 +57,6 @@ const MusicPage = ({ songs, onAccentChange }: MusicPageProps) => {
     }
   }, [])
 
-  useEffect(() => {
-    if (!lines.length || !isPlaying) {
-      if (lineTimerRef.current) {
-        clearInterval(lineTimerRef.current)
-      }
-      return
-    }
-
-    lineTimerRef.current = setInterval(() => {
-      setCurrentLineIndex((prev) => (prev + 1) % lines.length)
-    }, LINE_INTERVAL)
-
-    return () => {
-      if (lineTimerRef.current) {
-        clearInterval(lineTimerRef.current)
-      }
-    }
-  }, [isPlaying, lines.length])
-
   const togglePlay = () => {
     const audio = audioRef.current
     if (!audio) return
@@ -90,8 +66,6 @@ const MusicPage = ({ songs, onAccentChange }: MusicPageProps) => {
       void audio.play().catch(() => undefined)
     }
   }
-
-  const displayedLine = lines[currentLineIndex] ?? anthem?.memory ?? 'Наша мелодія про кохання'
 
   if (!anthem) {
     return null
@@ -104,15 +78,32 @@ const MusicPage = ({ songs, onAccentChange }: MusicPageProps) => {
         <p className={styles.label}>Пісня, що нагадує мені тебе</p>
         <h2 className={styles.title}>{anthem.title}</h2>
         <p className={styles.subtitle}>{anthem.memory}</p>
-        <button type="button" className={styles.playButton} onClick={togglePlay} aria-pressed={isPlaying}>
-          <span>{isPlaying ? 'Пауза' : 'Play'}</span>
-        </button>
+        <div className={styles.recordPlayer}>
+          <span
+            className={`${styles.tonearm} ${isPlaying ? styles.tonearmActive : ''}`}
+            aria-hidden="true"
+          />
+          <button
+            type="button"
+            className={`${styles.recordButton} ${isPlaying ? styles.recordButtonSpinning : ''}`}
+            onClick={togglePlay}
+            aria-pressed={isPlaying}
+            aria-label={isPlaying ? 'Пауза' : 'Відтворити'}
+          >
+            <span className={styles.recordDisc}>
+              <span className={styles.recordGrooves} aria-hidden="true" />
+              <span className={styles.recordLabel}>
+                <img src={coverImage} alt="Обкладинка треку" loading="lazy" decoding="async" />
+              </span>
+            </span>
+            <span className={`${styles.recordBadge} ${isPlaying ? styles.recordBadgeActive : ''}`}>
+              {isPlaying ? '⏸' : '▶'}
+            </span>
+          </button>
+        </div>
         <audio ref={audioRef} src={anthem.audio} preload="auto">
           Ваш браузер не підтримує відтворення аудіо.
         </audio>
-        <div className={styles.lineTicker} aria-live="polite">
-          <span className={styles.lineText}>{displayedLine}</span>
-        </div>
         {showHeart && (
           <div className={styles.endingHeart} aria-live="polite">
             <span />

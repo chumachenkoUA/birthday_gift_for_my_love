@@ -21,26 +21,12 @@
   color: $color-primary;
 }
 
-.filmstrip {
+.viewer {
   display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 24px;
-  overflow-x: auto;
-  padding: 8px 6px 12px;
-  scrollbar-width: thin;
-
-  &::-webkit-scrollbar {
-    height: 12px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: rgba(255, 226, 240, 0.4);
-    border-radius: 999px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: rgba(242, 119, 162, 0.4);
-    border-radius: 999px;
-  }
+  padding: 8px 0;
 }
 
 .photo {
@@ -48,8 +34,7 @@
   border-radius: 22px;
   padding: 18px 18px 26px;
   color: #fff0f7;
-  min-width: 220px;
-  max-width: 240px;
+  width: min(360px, 80vw);
   box-shadow: 0 22px 50px rgba(28, 16, 36, 0.45);
   position: relative;
   display: flex;
@@ -159,6 +144,56 @@
   color: rgba(255, 226, 240, 0.95);
 }
 
+.navButton {
+  border: none;
+  background: rgba(255, 220, 237, 0.85);
+  color: $color-primary;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  font-size: 1.6rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 16px 36px rgba(176, 47, 99, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 44px rgba(176, 47, 99, 0.3);
+    background: rgba(255, 220, 237, 0.95);
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(255, 174, 207, 0.5);
+    outline-offset: 4px;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+}
+
+.navButtonPrev {
+  order: 0;
+}
+
+.navButtonNext {
+  order: 2;
+}
+
+.counter {
+  text-align: center;
+  margin: 0;
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  color: rgba(116, 80, 102, 0.9);
+}
+
 @media (max-width: 960px) {
   .page {
     border-radius: 26px;
@@ -167,12 +202,8 @@
 }
 
 @media (max-width: 720px) {
-  .filmstrip {
-    gap: 18px;
-  }
-
-  .photo {
-    min-width: 200px;
+  .viewer {
+    gap: 16px;
   }
 }
 
@@ -182,15 +213,17 @@
     padding: 28px 22px;
   }
 
-  .filmstrip {
+  .viewer {
     flex-direction: column;
-    overflow: visible;
-    gap: 16px;
+  }
+
+  .navButton {
+    width: 48px;
+    height: 48px;
   }
 
   .photo {
     width: 100%;
-    min-width: unset;
   }
 }
 

@@ -90,50 +90,208 @@ $page-radius: 48px;
   color: rgba(197, 74, 124, 0.65);
 }
 
-.playButton {
-  margin-top: 16px;
-  width: 200px;
-  height: 200px;
+.recordPlayer {
+  position: relative;
+  margin-top: 32px;
+  width: min(360px, 70vw);
+  aspect-ratio: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  isolation: isolate;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 10%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.25), rgba(244, 135, 176, 0.05));
+    filter: blur(6px);
+    opacity: 0.8;
+    z-index: 0;
+  }
+}
+
+.recordButton {
+  position: relative;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
-  border: none;
-  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.95), rgba(255, 167, 204, 0.6));
-  color: #b2195f;
-  font-size: 1.4rem;
-  font-weight: 700;
+  border: 10px solid rgba(255, 255, 255, 0.08);
   cursor: pointer;
-  box-shadow: 0 30px 60px rgba(178, 25, 95, 0.35);
-  display: grid;
-  place-items: center;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  background: radial-gradient(circle at 28% 28%, #3d1425 0%, #140109 45%, #050203 70%, #000 100%);
+  box-shadow:
+    inset 0 0 30px rgba(0, 0, 0, 0.55),
+    inset 0 0 80px rgba(255, 255, 255, 0.05),
+    0 35px 70px rgba(15, 0, 10, 0.45);
+  padding: clamp(28px, 8vw, 42px);
+  transition: transform 0.25s ease;
+  overflow: hidden;
+  z-index: 1;
 
   &:hover {
-    transform: translateY(-6px) scale(1.02);
-    box-shadow: 0 40px 70px rgba(178, 25, 95, 0.4);
+    transform: translateY(-6px);
   }
 
   &:focus-visible {
-    outline: 4px solid rgba(255, 255, 255, 0.6);
-    outline-offset: 6px;
+    outline: 4px solid rgba(255, 255, 255, 0.5);
+    outline-offset: 8px;
+  }
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 12%;
+    border-radius: 50%;
+    z-index: -1;
+  }
+
+  &::before {
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.05), transparent 65%);
+    filter: blur(3px);
+  }
+
+  &::after {
+    inset: 4%;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    opacity: 0.5;
   }
 }
 
-.lineTicker {
-  margin-top: 48px;
-  padding: 18px 26px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.85);
-  box-shadow: inset 0 0 30px rgba(197, 74, 124, 0.08);
-  min-height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  max-width: 700px;
+.recordDisc {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #1f0812 35%, #070308 70%, #010101);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 18%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 70% 30%, rgba(255, 255, 255, 0.2), transparent 55%);
+    opacity: 0.4;
+    mix-blend-mode: screen;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 12%;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
 }
 
-.lineText {
-  font-size: 1.1rem;
-  letter-spacing: 0.02em;
-  color: #c54a7c;
+.recordGrooves {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background-image: repeating-radial-gradient(circle, transparent 0 7px, rgba(255, 255, 255, 0.04) 7px 7.5px);
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.recordLabel {
+  position: relative;
+  width: 40%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  border: 3px solid rgba(255, 255, 255, 0.35);
+  background: radial-gradient(circle, #ffdbe8, #ffb0cf);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 28%;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.3);
+  }
+}
+
+.recordBadge {
+  position: absolute;
+  bottom: 16%;
+  right: 18%;
+  transform: translate(50%, 50%);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(255, 220, 235, 0.9));
+  color: #a5124f;
+  font-weight: 700;
+  font-size: 1.3rem;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 15px 30px rgba(178, 25, 95, 0.2);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.recordBadgeActive {
+  background: linear-gradient(135deg, #c92463, #ff6f9f);
+  color: white;
+  box-shadow: 0 20px 40px rgba(201, 36, 99, 0.4);
+}
+
+.recordButtonSpinning .recordDisc {
+  animation: vinylSpin 6s linear infinite;
+}
+
+@keyframes vinylSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.tonearm {
+  position: absolute;
+  width: clamp(140px, 40vw, 200px);
+  height: 12px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #fdf2f6 0%, #deb1c5 60%, #8f6575 100%);
+  top: 10%;
+  right: -10%;
+  transform-origin: 5% 50%;
+  transform: rotate(28deg);
+  transition: transform 0.4s ease;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+
+  &::after {
+    content: '';
+    position: absolute;
+    right: -6px;
+    top: 50%;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #fefefe;
+    border: 2px solid rgba(0, 0, 0, 0.08);
+    transform: translateY(-50%);
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.tonearmActive {
+  transform: rotate(8deg);
 }
 
 .endingHeart {
@@ -176,13 +334,8 @@ $page-radius: 48px;
     padding: 40px 20px;
   }
 
-  .playButton {
-    width: 160px;
-    height: 160px;
-  }
-
-  .lineTicker {
-    padding: 16px;
+  .recordPlayer {
+    width: min(320px, 80vw);
   }
 }
 
@@ -203,18 +356,14 @@ $page-radius: 48px;
     font-size: 1rem;
   }
 
-  .playButton {
-    width: 140px;
-    height: 140px;
+  .recordPlayer {
+    width: min(260px, 90vw);
+    margin-top: 24px;
+  }
+
+  .recordBadge {
+    width: 48px;
+    height: 48px;
     font-size: 1.1rem;
-  }
-
-  .lineTicker {
-    margin-top: 36px;
-    padding: 14px 18px;
-  }
-
-  .lineText {
-    font-size: 1rem;
   }
 }

@@ -12,8 +12,9 @@ const GALLERY_ACCENT = '#f6d5f7'
 
 const GalleryPage = ({ photos, onAccentChange }: GalleryPageProps) => {
   const [revealed, setRevealed] = useState<Record<string, boolean>>({})
-  const filmstripRef = useRef<HTMLDivElement | null>(null)
-  const photoRefs = useRef<Record<string, HTMLElement | null>>({})
+  const [activeIndex, setActiveIndex] = useState(0)
+  const cardRef = useRef<HTMLElement | null>(null)
+  const isSwitchingRef = useRef(false)
   const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -24,22 +25,26 @@ const GalleryPage = ({ photos, onAccentChange }: GalleryPageProps) => {
   }, [onAccentChange])
 
   useEffect(() => {
-    if (!filmstripRef.current) return
-    const figures = Array.from(filmstripRef.current.querySelectorAll('figure'))
-    if (!figures.length) return
-    const animations = figures.map((figure, index) =>
-      animate(figure, {
-        translateY: [14, 0],
-        opacity: [0, 1],
-        delay: index * 120,
-        easing: 'easeOutQuad',
-        duration: 520,
-      }),
-    )
+    if (!cardRef.current) return
+    const animation = animate(cardRef.current, {
+      translateY: [16, 0],
+      opacity: [0, 1],
+      easing: 'easeOutQuad',
+      duration: 420,
+      complete: () => {
+        isSwitchingRef.current = false
+      },
+    })
     return () => {
-      animations.forEach((animation) => animation.pause())
+      animation.pause()
     }
-  }, [photos])
+  }, [activeIndex])
+
+  useEffect(() => {
+    if (activeIndex >= photos.length) {
+      setActiveIndex(0)
+    }
+  }, [activeIndex, photos.length])
 
   useEffect(() => {
     return () => {
@@ -49,12 +54,13 @@ const GalleryPage = ({ photos, onAccentChange }: GalleryPageProps) => {
     }
   }, [])
 
+  const currentPhoto = photos[activeIndex]
+  const totalPhotos = photos.length
   const handleReveal = (id: string) => {
     setRevealed((prev) => ({ ...prev, [id]: true }))
     window.requestAnimationFrame(() => {
-      const target = photoRefs.current[id]
-      if (!target) return
-      animate(target, {
+      if (!cardRef.current) return
+      animate(cardRef.current, {
         scale: [0.95, 1],
         rotate: [-1.2, 0],
         duration: 480,
@@ -88,54 +94,94 @@ const GalleryPage = ({ photos, onAccentChange }: GalleryPageProps) => {
     }
   }
 
+  const changeSlide = (step: number) => {
+    if (totalPhotos <= 1 || isSwitchingRef.current) return
+    const node = cardRef.current
+    if (!node) {
+      setActiveIndex((prev) => (prev + step + totalPhotos) % totalPhotos)
+      return
+    }
+    isSwitchingRef.current = true
+    animate(node, {
+      opacity: [1, 0],
+      translateX: step > 0 ? [0, -18] : [0, 18],
+      duration: 220,
+      easing: 'easeInQuad',
+      complete: () => {
+        setActiveIndex((prev) => (prev + step + totalPhotos) % totalPhotos)
+      },
+    })
+  }
+
+  const goToPrev = () => changeSlide(-1)
+
+  const goToNext = () => changeSlide(1)
+
+  const isRevealed = !currentPhoto.revealable || revealed[currentPhoto.id]
+
   return (
     <div className={styles.page}>
       <h2 className={styles.title}>Фото і спогади</h2>
-      <div ref={filmstripRef} className={styles.filmstrip} role="list">
-        {photos.map((photo) => {
-          const isRevealed = !photo.revealable || revealed[photo.id]
-          return (
-            <figure
-              key={photo.id}
-              ref={(element) => {
-                photoRefs.current[photo.id] = element
-              }}
-              className={`${styles.photo} ${photo.revealable ? styles.photoSecret : ''} ${
-                isRevealed ? styles.photoRevealed : ''
-              }`}
-            >
-              <div className={styles.frame}>
-                <img
-                  src={photo.src}
-                  alt={photo.alt}
-                  loading="lazy"
-                  decoding="async"
-                  className={`${styles.image} ${isRevealed ? '' : styles.imageBlurred}`}
-                />
-                {photo.revealable && !isRevealed && (
-                  <button
-                    type="button"
-                    className={styles.revealButton}
-                    onClick={() => handleReveal(photo.id)}
-                    onPointerDown={() => handleRevealPressStart(photo.id)}
-                    onPointerUp={() => handleRevealPressEnd(photo.id)}
-                    onPointerLeave={cancelRevealHold}
-                    aria-label="Розкрити приховану історію"
-                  >
-                    Розкрити
-                    <span className={styles.secretHint}>Торкнись і утримуй</span>
-                  </button>
-                )}
-                <span className={`${styles.perforation} ${styles.perforationTop}`} aria-hidden="true" />
-                <span className={`${styles.perforation} ${styles.perforationBottom}`} aria-hidden="true" />
-              </div>
-              <figcaption className={styles.caption}>
-                {isRevealed ? photo.hiddenCaption ?? photo.caption : photo.caption}
-              </figcaption>
-            </figure>
-          )
-        })}
+      <div className={styles.viewer}>
+        <button
+          type="button"
+          className={`${styles.navButton} ${styles.navButtonPrev}`}
+          onClick={goToPrev}
+          disabled={totalPhotos <= 1}
+          aria-label="Попереднє фото"
+        >
+          ‹
+        </button>
+        <figure
+          ref={(element) => {
+            cardRef.current = element
+          }}
+          className={`${styles.photo} ${currentPhoto.revealable ? styles.photoSecret : ''} ${
+            isRevealed ? styles.photoRevealed : ''
+          }`}
+        >
+          <div className={styles.frame}>
+            <img
+              src={currentPhoto.src}
+              alt={currentPhoto.alt}
+              loading="lazy"
+              decoding="async"
+              className={`${styles.image} ${isRevealed ? '' : styles.imageBlurred}`}
+            />
+            {currentPhoto.revealable && !isRevealed && (
+              <button
+                type="button"
+                className={styles.revealButton}
+                onClick={() => handleReveal(currentPhoto.id)}
+                onPointerDown={() => handleRevealPressStart(currentPhoto.id)}
+                onPointerUp={() => handleRevealPressEnd(currentPhoto.id)}
+                onPointerLeave={cancelRevealHold}
+                aria-label="Розкрити приховану історію"
+              >
+                Розкрити
+                <span className={styles.secretHint}>Торкнись і утримуй</span>
+              </button>
+            )}
+            <span className={`${styles.perforation} ${styles.perforationTop}`} aria-hidden="true" />
+            <span className={`${styles.perforation} ${styles.perforationBottom}`} aria-hidden="true" />
+          </div>
+          <figcaption className={styles.caption}>
+            {isRevealed ? currentPhoto.hiddenCaption ?? currentPhoto.caption : currentPhoto.caption}
+          </figcaption>
+        </figure>
+        <button
+          type="button"
+          className={`${styles.navButton} ${styles.navButtonNext}`}
+          onClick={goToNext}
+          disabled={totalPhotos <= 1}
+          aria-label="Наступне фото"
+        >
+          ›
+        </button>
       </div>
+      <p className={styles.counter}>
+        Фото {activeIndex + 1} / {totalPhotos}
+      </p>
     </div>
   )
 }

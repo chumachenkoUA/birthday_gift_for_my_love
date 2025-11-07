@@ -11,7 +11,7 @@ type LetterPageProps = {
 }
 
 const LETTER_ACCENT = '#f9cedf'
-const TYPEWRITER_DELAY = 35
+const TYPEWRITER_DELAY = 52
 const SMILE_DURATION = 6000
 
 const LetterPage = ({ onAccentChange, letter, audioSrc, smileImage }: LetterPageProps) => {
@@ -41,11 +41,15 @@ const LetterPage = ({ onAccentChange, letter, audioSrc, smileImage }: LetterPage
     let index = 0
 
     typeTimerRef.current = setInterval(() => {
-      setDisplayedText((prev) => prev + letter.charAt(index))
-      index += 1
-      if (index >= letter.length && typeTimerRef.current) {
-        clearInterval(typeTimerRef.current)
+      if (index >= letter.length) {
+        if (typeTimerRef.current) {
+          clearInterval(typeTimerRef.current)
+        }
+        return
       }
+      const nextChar = letter.charAt(index)
+      setDisplayedText((prev) => prev + nextChar)
+      index += 1
     }, TYPEWRITER_DELAY)
 
     return () => {
