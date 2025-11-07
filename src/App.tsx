@@ -6,14 +6,15 @@ import { galleryPhotos, letterContent, menuItems, SECRET_DATE, songs, surpriseCo
 import type { MenuItem, MenuTarget, View } from './types'
 import NavigationTabs from './components/NavigationTabs'
 import LoginScreen from './views/LoginScreen'
+import { withBase } from './utils/assetPath'
 
 const LetterPage = lazy(() => import('./views/LetterPage'))
 const MusicPage = lazy(() => import('./views/MusicPage'))
 const GalleryPage = lazy(() => import('./views/GalleryPage'))
 const SurprisePage = lazy(() => import('./views/SurprisePage'))
 
-const LETTER_AUDIO = '/audio/piano.mp3'
-const SMILE_IMAGE = '/photos/smile.jpg'
+const LETTER_AUDIO = withBase('audio/piano.mp3')
+const SMILE_IMAGE = withBase('photos/smile.jpg')
 const SECRET_ITEM: MenuItem = {
   id: 'surprise',
   label: '💖 Секретний кабінет',

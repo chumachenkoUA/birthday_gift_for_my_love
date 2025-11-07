@@ -1,4 +1,5 @@
 import type { GalleryPhoto, MenuItem, Song } from '../types'
+import { withBase } from '../utils/assetPath'
 
 export const SECRET_DATE = '02.12.2024'
 
@@ -29,8 +30,8 @@ export const songs: Song[] = [
     title: 'Ghost Avenue',
     memory: 'Я коли чую цю пісню, одразу згадую як ти її мені включала)))',
     color: '#f8bcd8',
-    audio: '/audio/song.mp3',
-    image: '/photos/eve-ghost-avenue.jpg',
+    audio: withBase('audio/song.mp3'),
+    image: withBase('photos/eve-ghost-avenue.jpg'),
     lines: [
       'Ти усміхаєшся — і світ стає теплішим',
     ],
@@ -40,31 +41,31 @@ export const songs: Song[] = [
 export const galleryPhotos: GalleryPhoto[] = [
   {
     id: 'firstTogether',
-    src: '/photos/firstTogether.jpg',
+    src: withBase('photos/firstTogether.jpg'),
     alt: 'Перші фото разом',
     caption: 'Наше перше спільне фото разом.',
   },
   {
     id: 'beautifulSmile',
-    src: '/photos/beautifulSmile.jpg',
+    src: withBase('photos/beautifulSmile.jpg'),
     alt: 'Твоя посмішка',
     caption: 'Твоя посмішка осяює все навколо.',
   },
   {
     id: 'film',
-    src: '/photos/film.jpg',
+    src: withBase('photos/film.jpg'),
     alt: 'Наш один з перших фільмів разом',
     caption: 'Наш один з перших фільмів разом',
   },
   {
     id: 'myLove',
-    src: '/photos/myLove.jpg',
+    src: withBase('photos/myLove.jpg'),
     alt: 'Моя любов',
     caption: 'Моя красуня ❤️',
   },
   {
     id: 'gym',
-    src: '/photos/gym.jpg',
+    src: withBase('photos/gym.jpg'),
     alt: 'Ти у спортзалі',
     caption: 'Моя спортсменка ❤️',
   },

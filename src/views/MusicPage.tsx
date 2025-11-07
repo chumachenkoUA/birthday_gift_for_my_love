@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import type { AccentSetter, Song } from '../types'
 import styles from './MusicPage.module.scss'
+import { withBase } from '../utils/assetPath'
 
 type MusicPageProps = {
   songs: Song[]
@@ -10,7 +11,7 @@ type MusicPageProps = {
 
 const MusicPage = ({ songs, onAccentChange }: MusicPageProps) => {
   const anthem = songs[0]
-  const coverImage = anthem?.image ?? '/photos/eve-ghost-avenue.jpg'
+  const coverImage = anthem?.image ?? withBase('photos/eve-ghost-avenue.jpg')
   const [isPlaying, setIsPlaying] = useState(false)
   const [showHeart, setShowHeart] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
